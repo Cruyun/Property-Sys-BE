@@ -78,7 +78,7 @@ class Room(db.Model):
 class Report(db.Model):
   __tablename__='reports'
   id=db.Column(db.Interger, primary_key=True)
-  content=db.Column(db.String(255))
+  content=db.Column(db.Text)
   state=db.Column(db.Interger, default=0) #状态 0 未处理 1 正在处理 2 已处理
   type=db.Column(db.Interger, default=0) #类型 0 维修 1 投诉 2 其他
   submit_time=db.Column(db.DateTime, default=datetime.now)
@@ -91,9 +91,12 @@ class Report(db.Model):
 class Announcement(db.Model):
   __tablename__='announcements'
   id=db.Column(db.Interger, primary_key=True)
-  content=db.Column(db.String(1000))
-  time=db.Column(db.DateTime, default=datetime.now)
+  content=db.Column(db.Text, nullable=False)
+  title=db.Column(db.String(256), nullable=False
+  time=db.Column(db.DateTime, default=datetime.now, nullable=False)
   estate_id=db.Column(db.Interger, db.ForeignKey('estates.id'), nullable=False)
+
+  #def to_json(self):
 
 # 停车场
 class Parking(db.Model):
