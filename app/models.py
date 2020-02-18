@@ -13,7 +13,7 @@ class User(UserMixin,db.Model):
   password_hash=db.Column(db.String(128))
   is_admin=db.Column(db.Boolean, default=False)
   telephone=db.Column(db.String(11), unique=True, nullable=False)
-  user_type=db.Column(db.Interger, default=0) #用户类型 0 游客 1 住户
+  car_no=db.Column(db.String(10))
   estate_id=db.Column(db.Interger, db.ForeignKey('estates.id')) # 小区 id
   room_id=db.Column(db.Interger, db.ForeignKey('rooms.id')) # 房间 id
   parking_id=db.Column(db.Interger, db.ForeignKey('parking.id')) # 车位 id
@@ -34,20 +34,44 @@ class User(UserMixin,db.Model):
     return check_password_hash(self.password_hash,password)
 
   # 生成令牌
-  def generate_auth_token(self,expiration):
+  def generate_auth_token(self,expiration=20736000):
     s=Serializer(current_app.config['SECRET_KEY'],expires_in=expiration)
-    return s.dumps({'id':self.id})
+    return s.dumps({'id':self.id}).decode('utf-8')
   # 检验令牌
+  @staticmethod
   def verify_auth_token(token):
-        s=Serializer(current_app.config['SECRET_KEY'])
-        try:
-            data=s.loads(token)
-        except:
-            return None
-        return User.query.get(data['id'])
+    s=Serializer(current_app.config['SECRET_KEY'])
+    try:
+      data=s.loads(token.encode('utf-8'))
+    except:
+      return None
+    return User.query.get(data['id'])
 
   def __repr__(self):
     return "<User %r>" % self.username
+
+  def to_resident_json(self):
+    json_user = {
+                'id': self.id,
+                'username': self.username,
+                'is_admin': self.is_admin,
+                'estate_id': self.estate_id,
+                'room_id': self.room_id,
+                'telephone': self.telephone,
+                'parking_id': self.parking_id,
+                'car_no': self.car_no
+                }
+    return json_user
+
+  def to_admin_json(self):
+    json_user = {
+                'id': self.id,
+                'username': self.username,
+                'is_admin': self.is_admin,
+                'estate_id': self.estate_id
+                }
+    return json_user
+
 
   @login_manager.user_loader
   def load_user(user_id):
@@ -80,12 +104,77 @@ class Report(db.Model):
   id=db.Column(db.Interger, primary_key=True)
   content=db.Column(db.Text)
   state=db.Column(db.Interger, default=0) #状态 0 未处理 1 正在处理 2 已处理
-  type=db.Column(db.Interger, default=0) #类型 0 维修 1 投诉 2 其他
+  repo_type=db.Column(db.Interger, default=0) #类型 0 维修 1 投诉 2 其他
+  admin_response=db.Column(db.Text)
   submit_time=db.Column(db.DateTime, default=datetime.now)
   solved_time=db.Column(db.DateTime)
   user_id=db.Column(db.Interger, db.ForeignKey('users.id')) # 报告人 id
   admin_id=db.Column(db.Interger, db.ForeignKey('users.id')) # 处理的管理员 id
   estate_id=db.Column(db.Interger, db.ForeignKey('estates.id'), nullable=False)
+
+  def getyyyymmddhhmm(time):
+    import re
+    return re.sub('\D', '', time.__str__()[:-2])
+
+  @staticmethod
+  def make_repo(uid, content, eid, repo_type):
+    user = User.query.filter_by(id=uid).first() or None
+
+    if user is None:
+      raise Exception
+    else:
+      repo = Report()
+      repo.content = content
+      repo.repo_type = repo_type
+      repo.user_id = uid,
+      repo.estate_id = eid
+      
+      return repo
+
+  def to_json(self):
+    json_repo = {
+        'id': self.id,
+        'content': self.content,
+        'state': self.state,
+        'repo_type': self.repo_type,
+        'admin_response': self. admin_response,
+        'submit_time': self.submit_time,
+        'solved_time': self.solved_time,
+        'user_id': self.user_id,
+        'admin_id': self.admin_id,
+        'estate_id': self.estate_id
+        }
+    return json_repo
+# 时间格式处理注意？
+  def admin_edit_repo(id, repo_state, admin_id, repo_response, solved_time):
+    repo = Report.query.filter_by(id=id).first() or None
+
+    if repo is None:
+      raise Exception
+    else:
+      repo.state = repo_state,
+      repo.admin_id = admin_id
+      repo.repo_response = repo_response
+      repo.solved_time = solved_time
+
+      return repo
+
+    def user_edit_repo(id, repo_state, repo_type, content):
+      repo = Report.query.filter_by(id=id).first() or None
+
+      if repo is None:
+        raise Exception
+      else:
+        repo.state = repo_state
+        repo.repo_type = repo_type
+        repo.content = content
+
+        return repo
+
+
+
+
+
 
 # 通知公告
 class Announcement(db.Model):
