@@ -8,44 +8,33 @@ from flask import current_app
 class User(UserMixin,db.Model):
   __tablename__='users'
   id=db.Column(db.Interger, primary_key=True)
-  username=db.Column(db.String(20))
-  password=db.Column(db.String(20))
-  password_hash=db.Column(db.String(128))
+  username=db.Column(db.String(164))
+  open_id = db.Column(db.String(36), index=True)  # weixin openid for identicaion
   is_admin=db.Column(db.Boolean, default=False)
-  telephone=db.Column(db.String(11), unique=True, nullable=False)
+  telephone=db.Column(db.String(11))
   car_no=db.Column(db.String(10))
   estate_id=db.Column(db.Interger, db.ForeignKey('estates.id')) # 小区 id
   room_id=db.Column(db.Interger, db.ForeignKey('rooms.id')) # 房间 id
   parking_id=db.Column(db.Interger, db.ForeignKey('parking.id')) # 车位 id
   #用户投诉记录
-  report_record=db.relationship('Report', backref=db.backref('user', lazy='joined'),lazy='dynamic')
+  report_record=db.relationship('Report', backref=db.backref('user'),lazy='dynamic', cascade='all')
   #用户缴费记录
-  payment_record=db.relationship('Payment', backref=db.backref('user', lazy='joined'),lazy='dynamic')
-
-  @property
-  def password(self):
-    raise AttributeError('password is not a readable attribute')
-  
-  @password.setter
-  def password(self,password):
-    self.password_hash=generate_password_hash(password)
-
-  def verify_password(self,password):
-    return check_password_hash(self.password_hash,password)
+  payment_record=db.relationship('Payment', backref=db.backref('user'), lazy='dynamic', cascade='all'
 
   # 生成令牌
-  def generate_auth_token(self,expiration=20736000):
-    s=Serializer(current_app.config['SECRET_KEY'],expires_in=expiration)
+  def generate_auth_token(self):
+    s=Serializer(current_app.config['SECRET_KEY'])
     return s.dumps({'id':self.id}).decode('utf-8')
+  
   # 检验令牌
   @staticmethod
   def verify_auth_token(token):
     s=Serializer(current_app.config['SECRET_KEY'])
     try:
-      data=s.loads(token.encode('utf-8'))
-    except:
+      data=s.loads(token)
+    except Exception as e:
       return None
-    return User.query.get(data['id'])
+    return User.query.get_or_404(data['id'])
 
   def __repr__(self):
     return "<User %r>" % self.username
@@ -71,11 +60,6 @@ class User(UserMixin,db.Model):
                 'estate_id': self.estate_id
                 }
     return json_user
-
-
-  @login_manager.user_loader
-  def load_user(user_id):
-    return User.query.get(int(user_id))
 
 # 小区
 class Estate(db.Model):
@@ -116,21 +100,6 @@ class Report(db.Model):
     import re
     return re.sub('\D', '', time.__str__()[:-2])
 
-  @staticmethod
-  def make_repo(uid, content, eid, repo_type):
-    user = User.query.filter_by(id=uid).first() or None
-
-    if user is None:
-      raise Exception
-    else:
-      repo = Report()
-      repo.content = content
-      repo.repo_type = repo_type
-      repo.user_id = uid,
-      repo.estate_id = eid
-      
-      return repo
-
   def to_json(self):
     json_repo = {
         'id': self.id,
@@ -145,7 +114,7 @@ class Report(db.Model):
         'estate_id': self.estate_id
         }
     return json_repo
-# 时间格式处理注意？
+
   def admin_edit_repo(id, repo_state, admin_id, repo_response, solved_time):
     repo = Report.query.filter_by(id=id).first() or None
 
@@ -185,7 +154,16 @@ class Announcement(db.Model):
   time=db.Column(db.DateTime, default=datetime.now, nullable=False)
   estate_id=db.Column(db.Interger, db.ForeignKey('estates.id'), nullable=False)
 
-  #def to_json(self):
+  def to_json(self):
+    json_announce = {
+      'id': self.id,
+      'content': self.content,
+      'title': self.title,
+      'time': self.time,
+      'estate_id': self.estate_id
+      }
+    return json_announce
+
 
 # 停车场
 class Parking(db.Model):
@@ -209,3 +187,17 @@ class Payment(db.Model):
   room_id=db.Column(db.Interger, db.ForeignKey('rooms.id'), nullable=False)
   user_id=db.Column(db.Interger, db.ForeignKey('users.id'), nullable=False) # 缴费人id
   estate_id=db.Column(db.Interger, db.ForeignKey('estates.id'), nullable=False)
+
+  def to_json(self):
+    json_payment = {
+      'id': self.id,
+      'estate_id': self.estate_id
+      'state': self.state,
+      'type': self.type,
+      'amount': self.amount,
+      'fee': self.fee,
+      'room_id': self.room_id,
+      'user_id': self.user_id
+      }
+    return json_payment
+
