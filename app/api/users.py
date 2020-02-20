@@ -1,7 +1,10 @@
-from flask import jsonify, request, current_app, url_for
+'''
+  /profile/:id/  获取用户个人信息
+'''
+from flask import jsonify, request, g
 from . import api
 from ..models import User
+from ..decorators import login_required
 
-@api.route('/users/<int:id>')
-def get_user(id):
-  user = User.
+@api.route('')
+
