@@ -45,6 +45,7 @@ def login():
       if user is not  None:
         token = user.generate_auth_token()
         user_id = user.id
+        is_admin = user.is_admin
         message = "not first login"
       else:
         # generate that user
@@ -54,6 +55,7 @@ def login():
           db.session.commit()
           token = user.generate_auth_token()
           user_id = user.id
+          is_admin = user.is_admin
         except Exception as e:
           message = "failed in generating the user, ex= %s" % e.message
         else:
@@ -63,6 +65,7 @@ def login():
         'token': token,
         'message': message,
         'id': user_id,
+        'is_admin': is_admin
         }), 200
     else:
       return jsonify({

@@ -1,9 +1,11 @@
 from datetime import datetime
 from . import db,login_manager
-from werkzeug.security import generate_password_hash,check_password_hash
-from flask_login import UserMixin,AnonymousUserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin, AnonymousUserMixin, current_user
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from flask import current_app
+from flask import current_app, request, url_for
+from sqlalchemy.orm import backref
+from random import seed
 
 class User(UserMixin,db.Model):
   __tablename__='users'
@@ -79,8 +81,31 @@ class Room(db.Model):
   gas_fee=db.Column(db.Interger, default=0)
   ele_used=db.Column(db.Interger, default=0)
   ele_fee=db.Column(db.Interger, default=0)
-  owner_id=db.Column(db.Interger, db.ForeignKey('users.id')) # 户主 id可为空
+  owner_id=db.Column(db.Interger, db.ForeignKey('users.id')) # 户主 id
   estate_id=db.Column(db.Interger, db.ForeignKey('estates.id'), nullable=False) # 小区id
+
+  def to_simple_json(self):
+    room_json = {
+        "id": self.id,
+        "name", self.name
+        }
+    return room_json
+
+  def to_detail_json(self):
+    room_json = {
+        "id": self.id,
+        "name": self.name,
+        "water_fee": self.water_fee,
+        "water_used": self.water_used,
+        "gas_fee": self.gas_fee,
+        "gas_used": self.gas_used,
+        "ele_fee": self.ele_fee,
+        "ele_used": self.ele_used,
+        "owner_id": self.owner_id,
+        "estate_id": self.estate_id,
+        "owner_id": self.owner_id
+        }
+    return room_json
 
 #报告
 class Report(db.Model):
