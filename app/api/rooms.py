@@ -19,7 +19,22 @@ def rooms():
     "rooms": [room.to_simple_json() for room in rooms]
     }), 200
 
-@api.route('/room/<rid>/', methods=['GET'])
+@api.route('/room/', methods=['GET'])
 def room_detail():
   rid = request.args.get('rid')
-  room = Room.query.filter_by(estate_id=rid).first()
+  room = Room.query.filter_by(id=rid).first()
+
+  if room is None:
+    return jsonify({
+      "message": " room does not exist"
+      )}, 404
+  return jsonify({
+      "message": "success",
+      "name": room.name,
+      "water_fee": self.water_fee,
+      "water_used": self.water_used,
+      "gas_fee": self.gas_fee,
+      "gas_used": self.gas_used,
+      "ele_fee": self.ele_fee,
+      "ele_used": self.ele_used,
+    }), 200

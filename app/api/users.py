@@ -69,7 +69,4 @@ def editprofile():
       "message" : "edit successfully!",
       {}), 200
   
-  username = request.get_json().get("username")
-  car_no = request.get_json().get("car_no")
-  room_id = request.get_json().get("room_id")
 
