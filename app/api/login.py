@@ -5,7 +5,7 @@ import requests
 from . import api
 from flask import request, jsonify
 from ..models import User
-from .. import db, app
+from .. import db
 
 wx_appid = app.config['WX_APPID']
 wx_appsecret = app.config['WX_APPSECRET']

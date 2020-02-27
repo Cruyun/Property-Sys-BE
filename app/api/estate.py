@@ -4,7 +4,7 @@
 from flask import jsonify, request, g
 from . import api
 from ..models import Estate
-from .. import db, app
+from .. import db
 
 @api.route("/estates/", Methods=["GET"])
 def all_estates():

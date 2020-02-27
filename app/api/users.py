@@ -6,7 +6,7 @@ from flask import jsonify, request, g
 from . import api
 from ..models import User, Estate, Room, Parking
 from ..decorators import login_required
-from .. import db, app
+from .. import db
 
 @api.route('/profile/', methods=["GET"])
 @login_required

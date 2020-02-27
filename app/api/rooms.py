@@ -7,7 +7,7 @@ from flask import jsonify, request, g
 from . import api
 from ..models import Room
 from ..decorators import login_required
-from .. import db, app
+from .. import db
 
 @api.route('/rooms/', methods=['GET'])
 def rooms():

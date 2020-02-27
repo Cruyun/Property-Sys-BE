@@ -10,7 +10,7 @@ from flask import jsonify, request, g
 from . import api
 from ..models import User, Estate, Room, Report
 from ..decorators import login_required
-from .. import db, app
+from .. import db
 
 @api.route('/repo/', Methods=['GET'])
 @login_required

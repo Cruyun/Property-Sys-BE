@@ -10,7 +10,7 @@ from flask import jsonify, request, g
 from . import api
 from ..models import User, Announcement
 from ..decorators import login_required
-from .. import db, app
+from .. import db
 
 @api.route('/announces/', methods=['GET'])
 def announces():

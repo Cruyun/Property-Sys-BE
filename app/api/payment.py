@@ -8,7 +8,7 @@ from flask import jsonify, request, g
 from . import api
 from ..models import User, Estate, Room, Payment
 from ..decorators import login_required
-from .. import db, app
+from .. import db
 
 @api.route('/pay/', Methods=['POST'])
 @login_required

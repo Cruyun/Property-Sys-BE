@@ -11,7 +11,7 @@ from flask import jsonify, request, g
 from . import api
 from ..models import User, Parking, Estate
 from ..decorators import login_required
-from .. import db, app
+from .. import db
 
 @api.route("/parkings/", Methods=["GET"])
 def public_parkings():
