@@ -96,7 +96,7 @@ def payment():
   payment_list = payment_list[start:end]
   return jsonify({
     "message": "success",
-    "payment": [payment.to_json() for payment in payment_list]
+    "payment": [payment.to_json() for payment in payment_list],
     "count": len(payment_list)
     }), 200
 

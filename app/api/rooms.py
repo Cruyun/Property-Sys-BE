@@ -27,7 +27,7 @@ def room_detail():
   if room is None:
     return jsonify({
       "message": " room does not exist"
-      )}, 404
+      }), 404
   return jsonify({
       "message": "success",
       "name": room.name,
