@@ -4,7 +4,7 @@
 '''
 from flask import jsonify, request, g
 from . import api
-from ..models import User, Estate, Room
+from ..models import User, Estate, Room, Parking
 from ..decorators import login_required
 from .. import db, app
 
@@ -25,7 +25,7 @@ def profile():
       "message": "success",
       "username": user.username,
       "is_admin": user.is_admin,
-      "telephone" user.telephone,
+      "telephone": user.telephone,
       "car_no": user.car_no,
       "estate": estate,
       "room": room,
@@ -52,21 +52,34 @@ def editprofile():
   room_id = request.get_json().get("room_id")
   parking_id = request.get_json().get("parking_id")
 
-  if username is not None:
-    user.username = username
-  if telephone is not None:
-    user.telephone = telephone
-  if car_no is not None:
-    user.car_no = car_no
-  if room_id is not None:
-    user.room_id = room_id
-  if parking is not None:
-    user.parking_id = parking_id
+  parking = Parking.query.filter_by(id=parking_id).first()
 
+  if username !=  None:
+    user.username = username
+  if telephone != None:
+    user.telephone = telephone
+  if car_no != None:
+    user.car_no = car_no
+  if room_id != None:
+    user.room_id = room_id
+
+  if parking != None:
+    user.parking_id = parking_id
+  else:
+    return jsonify({
+        "message": "parking does not exist" 
+      }), 404
+
+  parking.owner_id = user.id
+  parking.is_private = True
+  parking.park_car_no = user.car_no
+  parking.state = 1
+  
+  db.session.add(parking)
   db.session.add(user)
   db.session.commit()
-  return jsonify(
-      "message" : "edit successfully!",
-      {}), 200
+  return jsonify({
+      "message": "edit successfully!",
+      }), 200
   
 

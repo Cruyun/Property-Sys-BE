@@ -167,10 +167,11 @@ class Parking(db.Model):
   id=db.Column(db.Interger, primary_key=True)
   address=db.Column(db.String(20))
   state=db.Column(db.Interger, default=0, nullable=False) #状态 0 可停车 1 不可停车
-  free_start=db.Column(db.DateTime) #车位主人可修改的开放游客停车时间
-  free_end=db.Column(db.DateTime)
+  is_private=db.Column(db.Boolean, default=False)
+  park_car_no=db.Column(db.String(10))
   owner_id=db.Column(db.Interger, db.ForeignKey('users.id')) # 车位主人id
   estate_id=db.Column(db.Interger, db.ForeignKey('estates.id'), nullable=False)
+  # park_uid=db.Column(db.Interger, db.ForeignKey('users.id')) # 停车主人id
 
 # 缴费
 class Payment(db.Model):

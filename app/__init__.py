@@ -6,13 +6,15 @@ from flask_pagedown import  PageDown
 from config import config
 
 moment=Moment()
-db=SQLAlchemy()
+db = SQLAlchemy()
 pagedown=PageDown()
 
 login_manager=LoginManager()
-login_manager.login_view='auth.login'
+login_manager.session_protection = 'strong'
 
-def create_app(config_name):
+def create_app(config_name=None,main=True):
+  if config_name is None:
+    config_name = 'default'
   app=Flask(__name__)
   app.config.from_object(config[config_name])
   config[config_name].init_app(app)
@@ -25,8 +27,11 @@ def create_app(config_name):
   login_manager.init_app(app)
   pagedown.init_app(app)
 
-
   from .api import api as api_blueprint
   app.register_blueprint(api_blueprint,url_prefix="/api/v1.0")
-
   return app
+
+app = create_app(config_name = 'default')
+
+#from .api import api as api_blueprint
+#app.register_blueprint(api_blueprint,url_prefix="/api/v1.0")

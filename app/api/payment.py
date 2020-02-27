@@ -100,8 +100,3 @@ def payment():
     "count": len(payment_list)
     }), 200
 
-
-
-
-
-

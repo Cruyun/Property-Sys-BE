@@ -3,9 +3,8 @@
   /repo/ 用户 编辑/ 管理员回复 repo
   /repo/ 提交 repo
   /repo/ 删除 repo
-  /repos/ 用户查看自己的 repo 记录列表
-  /repolist/ 管理员查看小区的 repo 记录列表
-  /adminrepo/ 管理员重看自己正在处理的记录列表
+  /repos/  用户查看自己的 repo 记录列表
+  /repolist/  管理员查看小区的 repo 记录列表
 '''
 from flask import jsonify, request, g
 from . import api
@@ -120,4 +119,63 @@ def delete_repo():
   return jsonify({
     "message": "success",
     }), 200
+
+'''
+  用户查看自己的 repo 记录列表
+'''
+@api.route("/repos/", Methods=["GET"])
+@login_required
+def repos():
+  user_id = g.current_user.id
+  user = User.query.filter_by(id=user_id).first()
+  repos = list(user.repo_record)
+  per_page = 10
+  start = (page-1)* per_page
+  end = min(page*per_page, len(repos))
+  repos = repos[start:end]
+  return jsonify({
+      "message": "success",
+      "repos": [repo.to_json() for repo in repos],
+      "count": len(repos)
+    }), 200
+
+'''
+  管理员查看小区的repo 记录列表
+'''
+@api.route("/repolist/", Methods=["GET"])
+@login_required
+def repo_list():
+  user_id = g.current_user.id
+  user = User.query.filter_by(id=user_id).first()
+  repo_type = request.args.get("repo_type")
+
+  if user is None:
+    return jsonify({
+        "message": "user does not exist"
+      }), 404
+  if user.is_admin == False:
+    return jsonify({
+        "message": "no permission"
+      }), 403
+  repos = Report.query.filter_by(
+        admin_id = user_id,
+        repo_type = repo_type
+      ).all()
+  per_page = 10
+  start = (page-1)* per_page
+  end = min(page*per_page, len(repos))
+  repos = repos[start:end]
+
+  return jsonify({
+      "message": "success",
+      "repos": [repo.to_json() for repo in repos],
+      "count": len(repos)
+    }), 200
+
+
+
+
+
+
+
 
