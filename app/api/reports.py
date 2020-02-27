@@ -3,6 +3,9 @@
   /repo/ 用户 编辑/ 管理员回复 repo
   /repo/ 提交 repo
   /repo/ 删除 repo
+  /repos/ 用户查看自己的 repo 记录列表
+  /repolist/ 管理员查看小区的 repo 记录列表
+  /adminrepo/ 管理员重看自己正在处理的记录列表
 '''
 from flask import jsonify, request, g
 from . import api
