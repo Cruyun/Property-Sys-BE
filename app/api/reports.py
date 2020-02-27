@@ -12,7 +12,7 @@ from ..models import User, Estate, Room, Report
 from ..decorators import login_required
 from .. import db
 
-@api.route('/repo/', Methods=['GET'])
+@api.route('/repo/', methods=['GET'])
 @login_required
 def view_repo():
   repo_id = request.args.get("repo_id")
@@ -42,7 +42,7 @@ def view_repo():
       "admin": admin
     }), 200
 
-@api.route('/repo/', Methods=['PUT'])
+@api.route('/repo/', methods=['PUT'])
 @login_required
 def edit_repo():
   repo_id = request.args.get("repo_id")
@@ -79,7 +79,7 @@ def edit_repo():
       "message": "success"
     }), 200
 
-@api.route('/repo/', Methods=['POST'])
+@api.route('/repo/', methods=['POST'])
 @login_required
 def post_repo():
   content = request.get_json().get('content')
@@ -99,7 +99,7 @@ def post_repo():
       "message": "success"
     }), 200
 
-@api.route('/repo/', Methods=['DELETE'])
+@api.route('/repo/', methods=['DELETE'])
 @login_required
 def delete_repo():
   repo_id = request.args.get('repo_id')
@@ -123,7 +123,7 @@ def delete_repo():
 '''
   用户查看自己的 repo 记录列表
 '''
-@api.route("/repos/", Methods=["GET"])
+@api.route("/repos/", methods=["GET"])
 @login_required
 def repos():
   user_id = g.current_user.id
@@ -142,7 +142,7 @@ def repos():
 '''
   管理员查看小区的repo 记录列表
 '''
-@api.route("/repolist/", Methods=["GET"])
+@api.route("/repolist/", methods=["GET"])
 @login_required
 def repo_list():
   user_id = g.current_user.id

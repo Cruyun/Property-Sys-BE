@@ -13,7 +13,7 @@ from ..models import User, Parking, Estate
 from ..decorators import login_required
 from .. import db
 
-@api.route("/parkings/", Methods=["GET"])
+@api.route("/parkings/", methods=["GET"])
 def public_parkings():
   estate_id = request.args.get("estate_id")
   parkings = Parking.query.filter_by(
@@ -26,7 +26,7 @@ def public_parkings():
       "public_parkings": parkings
     }), 200
 
-@api.route("/free/", Methods=["GET"])
+@api.route("/free/", methods=["GET"])
 def free_parkings():
   estate_id = request.args.get("estate_id")
   parkings = Parking.query.filter_by(
@@ -39,7 +39,7 @@ def free_parkings():
     "free_parkings": parkings
     }), 200
 
-@api.route("/park/", Methods=["PUT"])
+@api.route("/park/", methods=["PUT"])
 def park():
   user_id = g.current_user.id
 
@@ -68,7 +68,7 @@ def park():
     "message": "success"
     }), 200
 
-@api.route("/leave/", Methods=["PUT"])
+@api.route("/leave/", methods=["PUT"])
 def leave():
   car_no = request.get_json().get("car_no")
   parking = Parking.query.filter_by(park_car_no=car_no).first()
@@ -86,7 +86,7 @@ def leave():
     }), 200
 
   
-@api.route("/tempfree/", Methods=["PUT"])
+@api.route("/tempfree/", methods=["PUT"])
 @login_required
 def tempfree():
   user_id = g.curren_user.id
@@ -122,7 +122,7 @@ def tempfree():
       "message": "success"
     }), 200
 
-@api.route("/check/", Methods=["GET"] )
+@api.route("/check/", methods=["GET"] )
 @login_required
 def checkfree():
   parking_id = request.get_json().get("parking_id")

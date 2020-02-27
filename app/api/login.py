@@ -6,11 +6,13 @@ from . import api
 from flask import request, jsonify
 from ..models import User
 from .. import db
-from flask import current_app as app
+#from flask import current_app as app
 
-wx_appid = app.config['WX_APPID']
-wx_appsecret = app.config['WX_APPSECRET']
+#wx_appid = app.config['WX_APPID']
+#wx_appsecret = app.config['WX_APPSECRET']
 wx_openid_url = "https://api.weixin.qq.com/sns/jscode2session"
+wx_appid = "123"
+wx_appsecret = "123"
 
 @api.route('/login/', methods=['POST'])
 def login():

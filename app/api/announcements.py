@@ -40,7 +40,7 @@ def announce():
     "time": announcement.time
     })
 
-@api.route('/announce/', Methods=['POST'])
+@api.route('/announce/', methods=['POST'])
 @login_required
 def post_announce():
   user = User.query.filter_by(id=g.current_user.id).first()
@@ -70,7 +70,7 @@ def post_announce():
     }), 200
 
 
-@api.route('/announce/', Methods=['PUT'])
+@api.route('/announce/', methods=['PUT'])
 @login_required
 def edit_annouce():
   aid = request.args.get('id')
@@ -90,7 +90,7 @@ def edit_annouce():
       "message": "success"
     }), 200
 
-@api.route('/announce/', Methods=['DELETE'])
+@api.route('/announce/', methods=['DELETE'])
 @login_required
 def delete_announce():
   aid = request.get_json().get("id")

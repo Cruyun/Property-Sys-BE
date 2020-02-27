@@ -10,7 +10,7 @@ from ..models import User, Estate, Room, Payment
 from ..decorators import login_required
 from .. import db
 
-@api.route('/pay/', Methods=['POST'])
+@api.route('/pay/', methods=['POST'])
 @login_required
 def pay():
   fee_type = request.get_json().get("fee_type")
@@ -55,7 +55,7 @@ def pay():
       "message": "success"
     }), 200
 
-@api.route('/fee/', Methods=['GET'])
+@api.route('/fee/', methods=['GET'])
 @login_required
 def fee():
   user_id = g.current_user.id
@@ -82,7 +82,7 @@ def fee():
       "ele_used": room.ele_used
     }), 200
 
-@api.route("/payment/", Methods=["GET"])
+@api.route("/payment/", methods=["GET"])
 @login_required
 def payment():
   page = request.args.get('page', 1, type=int)
