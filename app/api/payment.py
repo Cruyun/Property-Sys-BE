@@ -33,7 +33,7 @@ def pay():
   if fee_type == 0:
     room.water_uesd = 0
     room.water_fee = 0
-  else if fee_type == 1:
+  elif fee_type == 1:
     room.gas_fee = 0
     room.gas_amount = 0
   else:
