@@ -35,7 +35,7 @@ def profile():
 @api.route('/profile/edit/', methods=['PUT'])
 @login_required
 def editprofile():
-  user_id = request.args.get("id")
+  user_id = request.args.get("user_id")
   user = User.query.filter_by(id=user_id).first()
 
   if user is None:

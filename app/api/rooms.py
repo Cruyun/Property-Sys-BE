@@ -11,7 +11,7 @@ from .. import db, app
 
 @api.route('/rooms/', methods=['GET'])
 def rooms():
-  eid = request.args.get('id')
+  eid = request.args.get('estate_id')
   rooms = Room.query.filter_by(estate_id=eid).all()
   
   return jsonify({
@@ -21,7 +21,7 @@ def rooms():
 
 @api.route('/room/', methods=['GET'])
 def room_detail():
-  rid = request.args.get('rid')
+  rid = request.args.get('room_id')
   room = Room.query.filter_by(id=rid).first()
 
   if room is None:

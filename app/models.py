@@ -140,35 +140,6 @@ class Report(db.Model):
         }
     return json_repo
 
-  def admin_edit_repo(id, repo_state, admin_id, repo_response, solved_time):
-    repo = Report.query.filter_by(id=id).first() or None
-
-    if repo is None:
-      raise Exception
-    else:
-      repo.state = repo_state,
-      repo.admin_id = admin_id
-      repo.repo_response = repo_response
-      repo.solved_time = solved_time
-
-      return repo
-
-    def user_edit_repo(id, repo_state, repo_type, content):
-      repo = Report.query.filter_by(id=id).first() or None
-
-      if repo is None:
-        raise Exception
-      else:
-        repo.state = repo_state
-        repo.repo_type = repo_type
-        repo.content = content
-
-        return repo
-
-
-
-
-
 
 # 通知公告
 class Announcement(db.Model):
