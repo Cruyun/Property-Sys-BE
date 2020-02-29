@@ -4,24 +4,25 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, AnonymousUserMixin, current_user
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app, request, url_for
-from sqlalchemy.orm import backref
+from sqlalchemy.orm import backref, relationship
+from sqlalchemy import ForeignKey
 from random import seed
 
 class User(UserMixin,db.Model):
   __tablename__='users'
   id=db.Column(db.Integer, primary_key=True)
-  username=db.Column(db.String(164))
+  username=db.Column(db.String(164), default="普通住户")
   open_id = db.Column(db.String(36), index=True)  # weixin openid for identicaion
   is_admin=db.Column(db.Boolean, default=False)
   telephone=db.Column(db.String(11))
   car_no=db.Column(db.String(10))
-  estate_id=db.Column(db.Integer, db.ForeignKey('estates.id')) # 小区 id
-  room_id=db.Column(db.Integer, db.ForeignKey('rooms.id')) # 房间 id
-  parking_id=db.Column(db.Integer, db.ForeignKey('parking.id')) # 车位 id
+  estate_id=db.Column(db.Integer, nullable=False) # 小区 id
+  room_id=db.Column(db.Integer) # 房间 id
+  parking_id=db.Column(db.Integer) # 车位 id
   #用户投诉记录
-  report_record=db.relationship('Report', backref=db.backref('user'),lazy='dynamic', cascade='all')
+  # report_record=db.relationship('Report', backref=db.backref('user'),lazy='dynamic', cascade='all')
   #用户缴费记录
-  payment_record=db.relationship('Payment', backref=db.backref('user'), lazy='dynamic', cascade='all')
+  # payment_record=db.relationship('Payment', backref=db.backref('user'), lazy='dynamic', cascade='all')
 
   # 生成令牌
   def generate_auth_token(self):
@@ -68,7 +69,13 @@ class Estate(db.Model):
   __tablename__='estates'
   id=db.Column(db.Integer, primary_key=True)
   name=db.Column(db.String(20), unique=True)
-  resident_num=db.Column(db.Integer, default=0)
+
+  def to_json(self):
+    estate_json = {
+          "id": self.id,
+          "name": self.name
+        }
+    return estate_json
 
 # 住房
 class Room(db.Model):
@@ -81,8 +88,8 @@ class Room(db.Model):
   gas_fee=db.Column(db.Integer, default=0)
   ele_used=db.Column(db.Integer, default=0)
   ele_fee=db.Column(db.Integer, default=0)
-  owner_id=db.Column(db.Integer, db.ForeignKey('users.id')) # 户主 id
-  estate_id=db.Column(db.Integer, db.ForeignKey('estates.id'), nullable=False) # 小区id
+  owner_id=db.Column(db.Integer) # 户主 id
+  estate_id=db.Column(db.Integer, nullable=False) # 小区id
 
   def to_simple_json(self):
     room_json = {
@@ -117,14 +124,10 @@ class Report(db.Model):
   admin_response=db.Column(db.Text)
   submit_time=db.Column(db.DateTime, default=datetime.now)
   solved_time=db.Column(db.DateTime)
-  user_id=db.Column(db.Integer, db.ForeignKey('users.id')) # 报告人 id
-  admin_id=db.Column(db.Integer, db.ForeignKey('users.id')) # 处理的管理员 id
-  estate_id=db.Column(db.Integer, db.ForeignKey('estates.id'), nullable=False)
-
-  def getyyyymmddhhmm(time):
-    import re
-    return re.sub('\D', '', time.__str__()[:-2])
-
+  user_id=db.Column(db.Integer) # 报告人 id
+  admin_id=db.Column(db.Integer) # 处理的管理员 id
+  estate_id=db.Column(db.Integer, nullable=False)
+  
   def to_json(self):
     json_repo = {
         'id': self.id,
@@ -148,7 +151,7 @@ class Announcement(db.Model):
   content=db.Column(db.Text, nullable=False)
   title=db.Column(db.String(256), nullable=False)
   time=db.Column(db.DateTime, default=datetime.now, nullable=False)
-  estate_id=db.Column(db.Integer, db.ForeignKey('estates.id'), nullable=False)
+  estate_id=db.Column(db.Integer,  nullable=False)
 
   def to_json(self):
     json_announce = {
@@ -169,9 +172,21 @@ class Parking(db.Model):
   state=db.Column(db.Integer, default=0, nullable=False) #状态 0 可停车 1 不可停车
   is_private=db.Column(db.Boolean, default=False)
   park_car_no=db.Column(db.String(10))
-  owner_id=db.Column(db.Integer, db.ForeignKey('users.id')) # 车位主人id
-  estate_id=db.Column(db.Integer, db.ForeignKey('estates.id'), nullable=False)
+  owner_id=db.Column(db.Integer) # 车位主人id
+  estate_id=db.Column(db.Integer,  nullable=False)
   # park_uid=db.Column(db.Integer, db.ForeignKey('users.id')) # 停车主人id
+  
+  def to_json(self):
+    park_json = {
+          "id": self.id,
+          "address": self.address,
+          "state": self.state,
+          "is_private": self.is_private,
+          "park_car": self.park_car,
+          "owner_id": self.owner_id,
+          "estate_id": self.estate_id
+        }
+    return park_json
 
 # 缴费
 class Payment(db.Model):
@@ -181,9 +196,9 @@ class Payment(db.Model):
   type=db.Column(db.Integer, default=0) #类型 0 water 1 gas 2 ele
   amount=db.Column(db.Integer, default=0) #数量
   fee=db.Column(db.Integer, default=0) #费用
-  room_id=db.Column(db.Integer, db.ForeignKey('rooms.id'), nullable=False)
-  user_id=db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False) # 缴费人id
-  estate_id=db.Column(db.Integer, db.ForeignKey('estates.id'), nullable=False)
+  room_id=db.Column(db.Integer, nullable=False)
+  user_id=db.Column(db.Integer, nullable=False) # 缴费人id
+  estate_id=db.Column(db.Integer, nullable=False)
 
   def to_json(self):
     json_payment = {

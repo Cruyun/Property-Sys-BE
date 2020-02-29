@@ -23,7 +23,7 @@ def public_parkings():
   parkings = list(parkings)
   return jsonify({
       "message": "success",
-      "public_parkings": parkings
+      "public_parkings": [parking.to_json() for parking in parkings]
     }), 200
 
 @api.route("/free/", methods=["GET"])
@@ -36,7 +36,7 @@ def free_parkings():
   parkings = list(parkings)
   return jsonify({
     "message": "success",
-    "free_parkings": parkings
+    "free_parkings": [parking.to_json() for parking in parkings]
     }), 200
 
 @api.route("/park/", methods=["PUT"])

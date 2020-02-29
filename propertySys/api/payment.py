@@ -88,7 +88,8 @@ def payment():
   page = request.args.get('page', 1, type=int)
   user = User.query.filter_by(id=g.current_user.id).first()
   
-  payment_list = list(user.payment_record)
+  payment_list = Payment.query.filter_by(user_id=user.id).all()
+  payment_list= list(payment_list)
 
   per_page = 10
   start = (page-1)* per_page

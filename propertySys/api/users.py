@@ -42,7 +42,7 @@ def editprofile():
     return jsonify({
         "message" : "user doest not exist!"
       }), 404
-  if user_id is not g.current_user.id:
+  if user_id != g.current_user.id:
     return jsonify({
       "message": "no permission to edit"
       }), 403

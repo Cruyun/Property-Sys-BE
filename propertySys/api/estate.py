@@ -13,6 +13,6 @@ def all_estates():
 
   return jsonify({
       "message": "success",
-      "estates": estates
+      "estates": [estate.to_json() for estate in estates]
     }), 200
 

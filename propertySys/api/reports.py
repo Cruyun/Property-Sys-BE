@@ -128,7 +128,8 @@ def delete_repo():
 def repos():
   user_id = g.current_user.id
   user = User.query.filter_by(id=user_id).first()
-  repos = list(user.repo_record)
+  repos = Reports.query.filter_by(user_id=user_id).all()
+  repos = list(repos)
   per_page = 10
   start = (page-1)* per_page
   end = min(page*per_page, len(repos))
@@ -162,6 +163,7 @@ def repo_list():
         repo_type = repo_type
       ).all()
   per_page = 10
+  repos=list(repos)
   start = (page-1)* per_page
   end = min(page*per_page, len(repos))
   repos = repos[start:end]
